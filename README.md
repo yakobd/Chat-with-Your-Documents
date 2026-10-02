@@ -52,6 +52,8 @@ Supabase's built-in email sender is rate limited. For real use, set up your own 
 
 The app uses `text-embedding-3-small` for embeddings and `gpt-4o-mini` for answers by default. To use another chat model, set `OPENAI_CHAT_MODEL` (see below). The embedding model must stay compatible with the database column `vector(1536)`.
 
+**Using OpenRouter instead of OpenAI (optional):** create a key at [openrouter.ai](https://openrouter.ai), add credit, and set `OPENROUTER_API_KEY` instead of `OPENAI_API_KEY`. The app then calls OpenRouter's OpenAI-compatible API with the same embedding model, so the database does not change. Note that your document text then passes through OpenRouter on its way to the model provider.
+
 ### Step 4: Deploy to Vercel
 
 1. Make sure the code is in a GitHub repository you control.
@@ -79,7 +81,8 @@ Run the checklist at the bottom of this file against the deployed URL.
 | --- | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | Your Supabase project URL. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | The Supabase anon / publishable key. Safe for the browser because Row Level Security protects the data. |
-| `OPENAI_API_KEY` | Yes | OpenAI key used on the server for embeddings and answers. Never expose it in the browser. |
+| `OPENAI_API_KEY` | Yes, unless using OpenRouter | OpenAI key used on the server for embeddings and answers. Never expose it in the browser. |
+| `OPENROUTER_API_KEY` | Alternative | Use instead of `OPENAI_API_KEY` to send requests through OpenRouter. If both are set, OpenRouter is used. Model names then need a provider prefix, for example `openai/gpt-4o-mini`. |
 | `OPENAI_CHAT_MODEL` | No | Model used to write answers. Defaults to `gpt-4o-mini`. |
 
 After changing environment variables on Vercel, **redeploy** so they take effect.

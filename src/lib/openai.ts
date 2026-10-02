@@ -1,15 +1,30 @@
 import OpenAI from "openai";
 
-// Must match vector(1536) in the database. If you change the model,
-// change the vector size in the SQL migration too.
-export const EMBEDDING_MODEL = "text-embedding-3-small";
+// If OPENROUTER_API_KEY is set, requests go through OpenRouter's
+// OpenAI-compatible API. Otherwise the app uses OPENAI_API_KEY directly.
+const useOpenRouter = Boolean(process.env.OPENROUTER_API_KEY);
+
+// Must produce 1536 dimensions to match vector(1536) in the database.
+// OpenRouter model names are prefixed with the provider.
+export const EMBEDDING_MODEL = useOpenRouter
+  ? "openai/text-embedding-3-small"
+  : "text-embedding-3-small";
+
+export const DEFAULT_CHAT_MODEL = useOpenRouter
+  ? "openai/gpt-4o-mini"
+  : "gpt-4o-mini";
 
 let client: OpenAI | null = null;
 
-// Created lazily so the build doesn't fail when the env var is missing.
+// Created lazily so the build doesn't fail when env vars are missing.
 export function getOpenAI(): OpenAI {
   if (!client) {
-    client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    client = useOpenRouter
+      ? new OpenAI({
+          apiKey: process.env.OPENROUTER_API_KEY,
+          baseURL: "https://openrouter.ai/api/v1",
+        })
+      : new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
   return client;
 }

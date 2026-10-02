@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { embedTexts, getOpenAI } from "@/lib/openai";
+import { DEFAULT_CHAT_MODEL, embedTexts, getOpenAI } from "@/lib/openai";
 import type { Citation } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 // Set OPENAI_CHAT_MODEL in .env.local to use a different model.
-const CHAT_MODEL = process.env.OPENAI_CHAT_MODEL ?? "gpt-4o-mini";
+const CHAT_MODEL = process.env.OPENAI_CHAT_MODEL ?? DEFAULT_CHAT_MODEL;
 const MATCH_COUNT = 6;
 const MIN_SIMILARITY = 0.25;
 const MAX_QUESTION_CHARS = 2000;
@@ -172,6 +172,7 @@ export async function POST(request: Request) {
         chat_id: chatId,
         role: "user",
         content: message,
+        citations: [],
         created_at: new Date(now).toISOString(),
       },
       {
